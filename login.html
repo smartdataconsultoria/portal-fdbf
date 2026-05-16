@@ -8,14 +8,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --grafite:      #2e2e31;
-      --grafite-card: rgba(30,30,33,0.93);
+      --grafite:        #2e2e31;
+      --grafite-card:   rgba(30,30,33,0.93);
       --grafite-border: rgba(242,242,242,0.1);
-      --red:          #d04b3d;
-      --red-dark:     #a83930;
-      --red-glow:     rgba(208,75,61,0.22);
-      --white:        #f2f2f2;
-      --text-muted:   #8a8a90;
+      --red:            #d04b3d;
+      --red-dark:       #a83930;
+      --red-glow:       rgba(208,75,61,0.22);
+      --white:          #f2f2f2;
+      --text-muted:     #8a8a90;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -23,7 +23,8 @@
       min-height: 100vh;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
+      padding-left: 8%;
       background: var(--grafite);
       position: relative;
       overflow: hidden;
@@ -32,7 +33,7 @@
       position: fixed; inset: 0;
       background-image: url('/fundo.png');
       background-size: cover;
-      background-position: center center;
+      background-position: center left;
       opacity: 0.65;
       z-index: 0;
     }
@@ -60,7 +61,7 @@
       background: var(--grafite-card);
       backdrop-filter: blur(20px);
       border: 1px solid var(--grafite-border);
-      border-radius: 16px; padding: 52px 48px;
+      border-radius: 16px; padding: 44px 48px 48px;
       width: 100%; max-width: 440px;
       position: relative; z-index: 2;
       box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(208,75,61,0.1), inset 0 1px 0 rgba(242,242,242,0.05);
@@ -76,24 +77,28 @@
       background: linear-gradient(90deg, transparent, var(--red), transparent);
       border-radius: 0 0 2px 2px;
     }
-    .logo-area { text-align: center; margin-bottom: 36px; }
-    .logo-badge {
-      width: 64px; height: 64px;
-      background: linear-gradient(145deg, var(--red), var(--red-dark));
-      border-radius: 14px;
-      display: inline-flex; align-items: center; justify-content: center;
-      margin-bottom: 16px;
-      box-shadow: 0 8px 28px var(--red-glow), 0 0 0 6px rgba(208,75,61,0.08);
+
+    /* Logo */
+    .logo-area { text-align: center; margin-bottom: 28px; }
+    .logo-img {
+      display: inline-block;
+      margin-bottom: 14px;
     }
-    .logo-badge svg { width: 32px; height: 32px; fill: #fff; }
+    .logo-img img {
+      height: 52px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      display: block;
+      margin: 0 auto;
+    }
     .logo-area h1 {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 28px; font-weight: 800;
+      font-size: 14px; font-weight: 600;
       letter-spacing: 3px; text-transform: uppercase;
       color: var(--white); margin-bottom: 4px;
     }
-    .logo-area h1 span { color: var(--red); }
-    .logo-area p { font-size: 12px; color: var(--text-muted); letter-spacing: .5px; }
+    .logo-area p { font-size: 11px; color: var(--text-muted); letter-spacing: .5px; }
+
     .divider {
       height: 1px;
       background: linear-gradient(90deg, transparent, var(--grafite-border), transparent);
@@ -143,7 +148,7 @@
     .msg-box { border-radius: 8px; font-size: 13px; padding: 10px 14px; margin-bottom: 16px; display: none; }
     .msg-error  { background: rgba(224,85,85,.1); border: 1px solid rgba(224,85,85,.25); color: #f08080; }
     .msg-success{ background: rgba(52,201,126,.1); border: 1px solid rgba(52,201,126,.25); color: #5ddb9a; }
-    .footer-brand { text-align: center; margin-top: 30px; font-size: 11px; color: var(--text-muted); letter-spacing: .3px; }
+    .footer-brand { text-align: center; margin-top: 28px; font-size: 11px; color: var(--text-muted); }
     .footer-brand strong { color: var(--red); }
     .link-voltar { display: block; text-align: center; margin-top: 18px; font-size: 13px; color: var(--red); text-decoration: none; cursor: pointer; }
     .link-voltar:hover { text-decoration: underline; }
@@ -155,12 +160,13 @@
   <div class="bg-grid"></div>
   <div class="side-accent"></div>
 
+  <!-- CARD LOGIN -->
   <div class="card" id="cardLogin">
     <div class="logo-area">
-      <div class="logo-badge">
-        <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>
+      <div class="logo-img">
+        <img src="/fdbf_logo_transparent.png" alt="FDBF Representações" />
       </div>
-      <h1>FDBF <span>Representações</span></h1>
+      <h1>Representações</h1>
       <p>Portal de Dashboards · Inteligência Comercial</p>
     </div>
     <div class="divider"></div>
@@ -187,12 +193,13 @@
     <div class="footer-brand">Desenvolvido pela <strong>SmartData</strong> Consultoria</div>
   </div>
 
+  <!-- CARD RECUPERAR SENHA -->
   <div class="card" id="cardRecovery" style="display:none">
     <div class="logo-area">
-      <div class="logo-badge">
-        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      <div class="logo-img">
+        <img src="/fdbf_logo_transparent.png" alt="FDBF Representações" />
       </div>
-      <h1>RECUPERAR <span>SENHA</span></h1>
+      <h1>Recuperar Senha</h1>
       <p>Enviaremos um link para seu e-mail</p>
     </div>
     <div class="divider"></div>
