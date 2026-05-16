@@ -320,6 +320,47 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     #loadingScreen p { font-size: 13px; color: var(--text-muted); }
+
+    /* ── BOAS-VINDAS ── */
+    .welcome-banner {
+      background: linear-gradient(135deg, rgba(208,75,61,0.12) 0%, rgba(208,75,61,0.04) 100%);
+      border: 1px solid rgba(208,75,61,0.2);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+    .welcome-banner::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(to bottom, transparent, var(--red), transparent);
+    }
+    .welcome-greeting {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 26px; font-weight: 700;
+      color: var(--white);
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+    .welcome-quote {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-style: italic;
+      line-height: 1.5;
+      max-width: 480px;
+    }
+    .welcome-icon {
+      font-size: 40px;
+      opacity: 0.5;
+      flex-shrink: 0;
+      margin-left: 20px;
+    }
   </style>
 </head>
 <body>
@@ -368,6 +409,15 @@
     <div class="topbar-right">
       <span class="topbar-date" id="topbarDate"></span>
     </div>
+  </div>
+
+  <!-- BANNER BOAS-VINDAS -->
+  <div class="welcome-banner" id="welcomeBanner">
+    <div class="welcome-text">
+      <div class="welcome-greeting" id="welcomeGreeting">Bom dia! 👋</div>
+      <div class="welcome-quote" id="welcomeQuote"></div>
+    </div>
+    <div class="welcome-icon">📊</div>
   </div>
 
   <!-- HOME: GRID DE DASHBOARDS -->
@@ -483,6 +533,26 @@
     document.getElementById('topbarTitle').textContent = 'Dashboards';
   }
 
+  // ── BOAS-VINDAS ──
+  const FRASES = [
+    'Os dados de hoje são as decisões de amanhã. Vamos em frente!',
+    'Cada número conta uma história. Você está escrevendo a sua.',
+    'Foco, estratégia e resultados. Esse é o caminho.',
+    'Grandes conquistas começam com pequenas ações consistentes.',
+    'Quem entende seus dados, domina seu mercado.',
+    'O sucesso é a soma de pequenos esforços repetidos dia após dia.',
+    'Transforme informação em vantagem competitiva.',
+    'Não espere pela oportunidade perfeita. Crie ela com seus dados.',
+  ];
+
+  function setSaudacao(nome) {
+    const h = new Date().getHours();
+    const periodo = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+    const frase = FRASES[Math.floor(Math.random() * FRASES.length)];
+    document.getElementById('welcomeGreeting').textContent = periodo + ', ' + nome + '! 👋';
+    document.getElementById('welcomeQuote').textContent = '"' + frase + '"';
+  }
+
   // Data no topbar
   const now = new Date();
   document.getElementById('topbarDate').textContent =
@@ -496,7 +566,9 @@
     const email = session.user.email;
     const initial = email.charAt(0).toUpperCase();
     document.getElementById('userInitial').textContent = initial;
-    document.getElementById('userName').textContent    = email.split('@')[0];
+    const nomeExibido = email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1);
+    document.getElementById('userName').textContent    = nomeExibido;
+    setSaudacao(nomeExibido);
     document.getElementById('userEmail').textContent   = email;
 
     buildGrid();
