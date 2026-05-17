@@ -149,6 +149,13 @@
       box-shadow: 0 8px 24px var(--red-glow); position: relative; z-index: 1;
     }
     .dash-card-thumb .thumb-icon svg { width: 28px; height: 28px; fill: #fff; }
+    /* Capa com imagem */
+    .dash-card-thumb.has-img { background: #000; }
+    .dash-card-thumb.has-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      opacity: 0.85; transition: opacity .2s;
+    }
+    .dash-card:hover .dash-card-thumb.has-img img { opacity: 1; }
     .dash-card-body { padding: 18px 20px 20px; }
     .dash-card-body h3 {
       font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 700;
@@ -284,8 +291,11 @@
     }
     grid.innerHTML = DASHBOARDS.map((d, i) => `
       <div class="dash-card" onclick="openDash(${i})">
-        <div class="dash-card-thumb">
-          <div class="thumb-icon">${getIcon(d.categoria)}</div>
+        <div class="dash-card-thumb ${d.imagem_url ? 'has-img' : ''}">
+          ${d.imagem_url
+            ? `<img src="${d.imagem_url}" alt="${d.titulo}" loading="lazy">`
+            : `<div class="thumb-icon">${getIcon(d.categoria)}</div>`
+          }
         </div>
         <div class="dash-card-body">
           <h3>${d.titulo}</h3>
@@ -372,7 +382,7 @@
 
     const { data, error } = await sb
       .from('dashboards_clientes')
-      .select('id, titulo, descricao, url, categoria, empresa')
+      .select('id, titulo, descricao, url, categoria, empresa, imagem_url')
       .eq('email_cliente', email)
       .eq('ativo', true)
       .order('id', { ascending: true });
