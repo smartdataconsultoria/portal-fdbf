@@ -227,14 +227,6 @@
     }
     .dash-card-thumb .thumb-icon svg { width: 28px; height: 28px; fill: #fff; }
 
-    /* Thumb colorida para quando tiver screenshot */
-    .dash-card-thumb.has-img {
-      background: #000;
-    }
-    .dash-card-thumb.has-img img {
-      width: 100%; height: 100%; object-fit: cover; opacity: .75;
-    }
-
     .dash-card-body { padding: 18px 20px 20px; }
     .dash-card-body h3 {
       font-family: 'Barlow Condensed', sans-serif;
@@ -417,15 +409,13 @@
       <div class="welcome-greeting" id="welcomeGreeting">Bom dia! 👋</div>
       <div class="welcome-quote" id="welcomeQuote"></div>
     </div>
-
   </div>
 
   <!-- HOME: GRID DE DASHBOARDS -->
   <div class="content" id="homeView">
     <div class="section-title">Relatórios disponíveis</div>
-
     <div class="dashboards-grid" id="dashGrid">
-      <!-- Cards gerados pelo JS -->
+      <!-- Cards gerados pelo JS a partir do Supabase -->
     </div>
   </div>
 
@@ -453,59 +443,48 @@
   const { createClient } = supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-  // ── DASHBOARDS — adicione/edite aqui ──────────────────────────────────────
-  // Para cada dashboard, preencha: title, description, tag, url (link embed Power BI)
-  const DASHBOARDS = [
-    {
-      title: 'Dashboard Comercial',
-      description: 'Visão geral de vendas, metas e desempenho da equipe comercial.',
-      tag: 'Vendas',
-      icon: 'chart',
-      url: '' // cole aqui o link embed do Power BI
-    },
-    {
-      title: 'Dashboard Financeiro',
-      description: 'Faturamento, receitas e indicadores financeiros do período.',
-      tag: 'Financeiro',
-      icon: 'finance',
-      url: ''
-    },
-    {
-      title: 'Dashboard de Produtos',
-      description: 'Análise de mix de produtos, categorias e margem por linha.',
-      tag: 'Produtos',
-      icon: 'box',
-      url: ''
-    },
-  ];
-  // ─────────────────────────────────────────────────────────────────────────
+  // Array que será preenchido dinamicamente pelo Supabase
+  let DASHBOARDS = [];
 
-  const ICONS = {
-    chart: `<svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>`,
+  // ── ÍCONES por categoria ──────────────────────────────────────────────────
+  const ICON_SVG = {
+    chart:   `<svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>`,
     finance: `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`,
-    box: `<svg viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`,
+    box:     `<svg viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`,
+    default: `<svg viewBox="0 0 24 24"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 0 10h-2M8 12h8"/></svg>`,
   };
 
+  // Mapeia categoria do banco para ícone
+  function getIcon(categoria) {
+    if (!categoria) return ICON_SVG.default;
+    const cat = categoria.toLowerCase();
+    if (cat.includes('comercial') || cat.includes('venda'))  return ICON_SVG.chart;
+    if (cat.includes('financ') || cat.includes('fatura'))    return ICON_SVG.finance;
+    if (cat.includes('produto') || cat.includes('estoque'))  return ICON_SVG.box;
+    return ICON_SVG.default;
+  }
+
+  // ── RENDERIZA GRID ────────────────────────────────────────────────────────
   function buildGrid() {
     const grid = document.getElementById('dashGrid');
     if (!DASHBOARDS.length) {
       grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
         <div class="icon">📊</div>
-        <h3>Nenhum dashboard cadastrado</h3>
-        <p>Os dashboards serão exibidos aqui após configuração.</p>
+        <h3>Nenhum dashboard disponível</h3>
+        <p>Você ainda não possui dashboards liberados. Entre em contato com a SmartData.</p>
       </div>`;
       return;
     }
     grid.innerHTML = DASHBOARDS.map((d, i) => `
       <div class="dash-card" onclick="openDash(${i})">
         <div class="dash-card-thumb">
-          <div class="thumb-icon">${ICONS[d.icon] || ICONS.chart}</div>
+          <div class="thumb-icon">${getIcon(d.categoria)}</div>
         </div>
         <div class="dash-card-body">
-          <h3>${d.title}</h3>
-          <p>${d.description}</p>
+          <h3>${d.titulo}</h3>
+          <p>${d.descricao && d.descricao !== 'EMPTY' ? d.descricao : 'Dashboard ' + (d.categoria || '')}</p>
           <div class="dash-card-footer">
-            <span class="dash-tag">${d.tag}</span>
+            <span class="dash-tag">${d.categoria || 'Dashboard'}</span>
             <span class="dash-arrow">→</span>
           </div>
         </div>
@@ -513,29 +492,30 @@
     `).join('');
   }
 
+  // ── ABRE DASHBOARD NO IFRAME ──────────────────────────────────────────────
   function openDash(index) {
     const d = DASHBOARDS[index];
     if (!d.url) {
       alert('Dashboard em configuração. Em breve disponível!');
       return;
     }
-    document.getElementById('iframeTitle').textContent = d.title;
+    document.getElementById('iframeTitle').textContent = d.titulo;
     document.getElementById('dashIframe').src = d.url;
-    document.getElementById('homeView').style.display  = 'none';
+    document.getElementById('homeView').style.display   = 'none';
     document.getElementById('iframeView').classList.add('active');
-    document.getElementById('topbarTitle').textContent = d.title;
+    document.getElementById('topbarTitle').textContent  = d.titulo;
   }
 
   function showHome() {
-    document.getElementById('homeView').style.display  = 'block';
+    document.getElementById('homeView').style.display   = 'block';
     document.getElementById('iframeView').classList.remove('active');
-    document.getElementById('dashIframe').src          = '';
-    document.getElementById('topbarTitle').textContent = 'Dashboards';
+    document.getElementById('dashIframe').src           = '';
+    document.getElementById('topbarTitle').textContent  = 'Dashboards';
   }
 
-  // ── BOAS-VINDAS ──
+  // ── BOAS-VINDAS ───────────────────────────────────────────────────────────
   const FRASES = [
-    'Seu próximo pedido pode estar naquela ligação esquecida',
+    'Seu próximo pedido pode estar naquela ligação esquecida.',
     'Cada número conta uma história. Você está escrevendo a sua.',
     'Foco, estratégia e resultados. Esse é o caminho.',
     'Grandes conquistas começam com pequenas ações consistentes.',
@@ -558,7 +538,7 @@
     const periodo = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
     const frase = FRASES[Math.floor(Math.random() * FRASES.length)];
     document.getElementById('welcomeGreeting').textContent = periodo + ', ' + nome + '! 👋';
-    document.getElementById('welcomeQuote').textContent = '"' + frase + '"';
+    document.getElementById('welcomeQuote').textContent    = '"' + frase + '"';
   }
 
   // Data no topbar
@@ -566,23 +546,49 @@
   document.getElementById('topbarDate').textContent =
     now.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
 
-  // Auth check
+  // ── AUTENTICAÇÃO + BUSCA NO SUPABASE ─────────────────────────────────────
   (async () => {
+    // 1. Verifica sessão ativa
     const { data: { session } } = await sb.auth.getSession();
-    if (!session) { window.location.href = './login.html'; return; }
+    if (!session) {
+      window.location.href = './login.html';
+      return;
+    }
 
     const email = session.user.email;
-    const initial = email.charAt(0).toUpperCase();
-    document.getElementById('userInitial').textContent = initial;
-    const nomeExibido = email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1);
-    document.getElementById('userName').textContent    = nomeExibido;
-    setSaudacao(nomeExibido);
-    document.getElementById('userEmail').textContent   = email;
 
-    buildGrid();
+    // 2. Preenche dados do usuário na sidebar
+    const initial      = email.charAt(0).toUpperCase();
+    const nomeExibido  = email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1);
+    document.getElementById('userInitial').textContent = initial;
+    document.getElementById('userName').textContent    = nomeExibido;
+    document.getElementById('userEmail').textContent   = email;
+    setSaudacao(nomeExibido);
+
+    // 3. Busca dashboards do banco filtrando pelo e-mail do usuário logado
+    const { data, error } = await sb
+      .from('dashboards_clientes')
+      .select('id, titulo, descricao, url, categoria, empresa')
+      .eq('email_cliente', email)
+      .order('id', { ascending: true });
+
+    if (error) {
+      console.error('Erro ao buscar dashboards:', error.message);
+      document.getElementById('dashGrid').innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <div class="icon">⚠️</div>
+        <h3>Erro ao carregar dashboards</h3>
+        <p>${error.message}</p>
+      </div>`;
+    } else {
+      DASHBOARDS = data || [];
+      buildGrid();
+    }
+
+    // 4. Esconde loading
     document.getElementById('loadingScreen').style.display = 'none';
   })();
 
+  // ── LOGOUT ────────────────────────────────────────────────────────────────
   document.getElementById('btnLogout').addEventListener('click', async () => {
     await sb.auth.signOut();
     window.location.href = './login.html';
