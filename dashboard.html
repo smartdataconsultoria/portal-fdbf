@@ -499,18 +499,20 @@
       alert('Dashboard em configuração. Em breve disponível!');
       return;
     }
-    document.getElementById('iframeTitle').textContent = d.titulo;
-    document.getElementById('dashIframe').src = d.url;
-    document.getElementById('homeView').style.display   = 'none';
+    document.getElementById('iframeTitle').textContent     = d.titulo;
+    document.getElementById('dashIframe').src              = d.url;
+    document.getElementById('homeView').style.display      = 'none';
+    document.getElementById('welcomeBanner').style.display = 'none';
     document.getElementById('iframeView').classList.add('active');
-    document.getElementById('topbarTitle').textContent  = d.titulo;
+    document.getElementById('topbarTitle').textContent     = d.titulo;
   }
 
   function showHome() {
-    document.getElementById('homeView').style.display   = 'block';
+    document.getElementById('homeView').style.display      = 'block';
+    document.getElementById('welcomeBanner').style.display = 'flex';
     document.getElementById('iframeView').classList.remove('active');
-    document.getElementById('dashIframe').src           = '';
-    document.getElementById('topbarTitle').textContent  = 'Dashboards';
+    document.getElementById('dashIframe').src              = '';
+    document.getElementById('topbarTitle').textContent     = 'Dashboards';
   }
 
   // ── BOAS-VINDAS ───────────────────────────────────────────────────────────
