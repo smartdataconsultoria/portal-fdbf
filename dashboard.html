@@ -352,11 +352,20 @@
     const { data: { session } } = await sb.auth.getSession();
     if (!session) { window.location.href = './login.html'; return; }
 
-    const email       = session.user.email;
-    const nomeRaw     = email.split('@')[0];
-    const nomeExibido = nomeRaw.charAt(0).toUpperCase() + nomeRaw.slice(1);
+    const email = session.user.email;
 
-    document.getElementById('userInitial').textContent = email.charAt(0).toUpperCase();
+    // Busca o nome real em usuarios_portal; fallback para prefixo do e-mail
+    const { data: usuario } = await sb
+      .from('usuarios_portal')
+      .select('nome')
+      .eq('email', email)
+      .maybeSingle();
+
+    const nomeExibido = (usuario && usuario.nome)
+      ? usuario.nome.split(' ')[0]
+      : email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1);
+
+    document.getElementById('userInitial').textContent = nomeExibido.charAt(0).toUpperCase();
     document.getElementById('userName').textContent    = nomeExibido;
     document.getElementById('userEmail').textContent   = email;
     setSaudacao(nomeExibido);
